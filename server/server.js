@@ -66,6 +66,22 @@ app.delete('/todos/:id', (req, res) => {
   res.send(`Successfully deleted todo with id: ${id}`);
 });
 
+// Put /todos/123245
+app.delete('/todos/:id', (req, res) => {
+  const id = req.params.id;
+  const doc = req.body;
+
+  if (!ObjectID.isValid(id) && doc.text != (null || '')){
+    return res.status(404).send('Invalid Id in parameter or body.');
+  }
+  
+  // Todo.findByIdAndUpdate(id, ).catch( (err) => {
+  //   return res.sendStatus(404).send(`Couldn't update todo with id: ${id}`);
+  // });
+  res.send(doc);
+  // res.send(`Successfully updated todo with id: ${id}`);
+});
+
 app.listen(portNumber, () => {
   console.log(`Started on port ${portNumber}`);
 });
