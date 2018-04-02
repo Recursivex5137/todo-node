@@ -51,6 +51,21 @@ app.get('/todos/:id', (req, res) => {
   });
 });
 
+// Delete /todos/123245
+app.delete('/todos/:id', (req, res) => {
+  const id = req.params.id;
+
+  if (!ObjectID.isValid(id)){
+    return res.status(404).send('Invalid Id in parameter.');
+  }
+  
+  Todo.findByIdAndRemove(id).catch( (err) => {
+    return res.sendStatus(404).send(`Couldn't delete todo with id: ${id}`);
+  });
+
+  res.send(`Successfully deleted todo with id: ${id}`);
+});
+
 app.listen(portNumber, () => {
   console.log(`Started on port ${portNumber}`);
 });

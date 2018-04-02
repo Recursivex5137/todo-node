@@ -112,3 +112,22 @@ describe('Get /todos/:id', () => {
       .end(done);
   });
 });
+
+describe('Delete /todos/:id', () => {
+  it('should delete todo doc', (done) => {
+    const id = todos[0]._id.toHexString()
+    request(app)
+      .delete(`/todos/${id}`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        Todo.find().then((todos) => {
+          expect(todos.length).toBe(1);
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+});
+
