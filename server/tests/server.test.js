@@ -129,6 +129,21 @@ describe('Delete /todos/:id', () => {
         }).catch((e) => done(e));
       });
   });
+  it('should return the deleted todo doc', (done) => {
+    const id = todos[1]._id.toHexString()
+    request(app)
+      .delete(`/todos/${id}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.text).toBe(todos[1].text);
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        done();
+      });
+  });
 });
 
 

@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
@@ -59,25 +60,40 @@ app.delete('/todos/:id', (req, res) => {
     return res.status(404).send('Invalid Id in parameter.');
   }
   
-  Todo.findByIdAndRemove(id).catch( (err) => {
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+    res.send(todo)
+  }).catch( (err) => {
     return res.sendStatus(404).send(`Couldn't delete todo with id: ${id}`);
   });
-
-  res.send(`Successfully deleted todo with id: ${id}`);
 });
 
-// Put /todos/123245
-app.delete('/todos/:id', (req, res) => {
+// Patch /todos/123245
+app.patch('/todos/:id', (req, res) => {
   const id = req.params.id;
-  const doc = req.body;
+  const body = _.pick(req.body, ['text', 'completed']);
 
-  if (!ObjectID.isValid(id) && doc.text != (null || '')){
+  if (!ObjectID.isValid(id)){
     return res.status(404).send('Invalid Id in parameter or body.');
   }
+
+  if(_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
   
-  // Todo.findByIdAndUpdate(id, ).catch( (err) => {
-  //   return res.sendStatus(404).send(`Couldn't update todo with id: ${id}`);
-  // });
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+    res.send({todo});
+  }).catch( (err) => {
+    return res.sendStatus(400).send(`Couldn't update todo with id: ${id}`);
+  });
   res.send(doc);
   // res.send(`Successfully updated todo with id: ${id}`);
 });
