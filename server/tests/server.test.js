@@ -10,7 +10,9 @@ const todos = [{
   text: 'First test todo'
 }, {
   _id: new ObjectID(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333
 }];
 
 // Causing errors vvv
@@ -147,23 +149,35 @@ describe('Delete /todos/:id', () => {
 });
 
 
-describe('Put /todos/:id', () => {
-  it('should update todo doc', (done) => {
-    const id = todos[0]._id.toHexString()
+describe('Patch /todos/:id', () => {
+  it('should update todo', (done) => {
+    const id = todos[1]._id.toHexString()
     const updateDoc = {
-      text: 'Hello'
+      text: 'Testing Functionality',
+      completed: true,
     };
     request(app)
-      .put(`/todos/${id}`)
+      .patch(`/todos/${id}`)
+      .send(updateDoc)
       .expect(200)
-      .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
-        Todo.find().then((todos) => {
-          expect(todos.length).toBe(1);
-          done();
-        }).catch((e) => done(e));
-      });
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(updateDoc.text);
+        expect(res.body.todo.completed).toBe(updateDoc.completed);
+      })
+      .end(done);
+  });
+  it('should clear completedAt when todo is not completed', (done) => {
+    const id = todos[1]._id.toHexString();
+    const updateDoc = {
+      completed: false
+    };
+    request(app)
+      .patch(`/todos/${id}`)
+      .send(updateDoc)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.completedAt).toNotExist;
+      })
+      .end(done);
   });
 });

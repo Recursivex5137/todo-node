@@ -94,8 +94,6 @@ app.patch('/todos/:id', (req, res) => {
   }).catch( (err) => {
     return res.sendStatus(400).send(`Couldn't update todo with id: ${id}`);
   });
-  res.send(doc);
-  // res.send(`Successfully updated todo with id: ${id}`);
 });
 
 app.listen(portNumber, () => {
