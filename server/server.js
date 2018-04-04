@@ -14,9 +14,9 @@ const portNumber = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+// Post /todos
 app.post('/todos', (req, res) => {
-  console.log(req.body);
-  let todo = new Todo({
+  const todo = new Todo({
     text: req.body.text
   });
   todo.save().then((doc) => {
@@ -26,6 +26,7 @@ app.post('/todos', (req, res) => {
   });
 });
 
+// Get /todos
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({
@@ -97,6 +98,21 @@ app.patch('/todos/:id', (req, res) => {
     return res.sendStatus(400).send(`Couldn't update todo with id: ${id}`);
   });
 });
+
+// Post /users
+app.post('/users', (req, res) => {
+  const body = _.pick(req.body, ['email', 'password']);
+  const user = new User({
+    email: body.email,
+    password: body.password
+  });
+  user.save().then((doc) => {
+    res.send(doc);
+  }, (err) => {
+    res.status(400).send(err);
+  });
+});
+
 
 app.listen(portNumber, () => {
   console.log(`Started on port ${portNumber}`);
