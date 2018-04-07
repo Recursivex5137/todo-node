@@ -1,3 +1,5 @@
+import { resolve } from 'dns';
+
 const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
@@ -40,6 +42,24 @@ UserSchema.methods.generateAuthToken = function () {
   user.tokens = user.tokens.concat([{access, token}]);
   user.save().then((token) => {
     return token;
+  });
+};
+
+UserSchema.statics.findByToken = function (token) {
+  let user = this;
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (err) {
+    console.log('findbyToken: ', err);
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
   });
 };
 
